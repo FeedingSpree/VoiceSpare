@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A post on the TIP Voice.",
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "The text content of the post."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Random", "Small Business", "Facility Concerns", "Faculty Issues"],
+          "description": "The category of the post."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional base64 image data."
+        },
+        "authorUid": {
+          "type": "string",
+          "description": "The UID of the user who created the post."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "The display name of the user (omitted if anonymous)."
+        },
+        "authorPhoto": {
+          "type": "string",
+          "description": "The photo URL of the user (omitted if anonymous)."
+        },
+        "isAnonymous": {
+          "type": "boolean",
+          "description": "Whether the post is anonymous."
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "When the post was created."
+        },
+        "editedAt": {
+          "type": "timestamp",
+          "description": "When the post was last edited."
+        },
+        "score": {
+          "type": "number",
+          "description": "The total score (upvotes - downvotes)."
+        },
+        "upvotedBy": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of UIDs who upvoted."
+        },
+        "downvotedBy": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of UIDs who downvoted."
+        }
+      },
+      "required": ["content", "category", "authorUid", "isAnonymous", "createdAt", "score", "upvotedBy", "downvotedBy"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A comment on a post.",
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "string",
+          "description": "The ID of the parent post."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the comment."
+        },
+        "authorUid": {
+          "type": "string",
+          "description": "The UID of the user who created the comment."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "The display name of the user (omitted if anonymous)."
+        },
+        "authorPhoto": {
+          "type": "string",
+          "description": "The photo URL of the user (omitted if anonymous)."
+        },
+        "isAnonymous": {
+          "type": "boolean",
+          "description": "Whether the comment is anonymous."
+        },
+        "anonTag": {
+          "type": "string",
+          "description": "A random tag for anonymous users (e.g., Anon 3313)."
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "When the comment was created."
+        }
+      },
+      "required": ["postId", "content", "authorUid", "isAnonymous", "createdAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "A report of an inappropriate post.",
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "string",
+          "description": "The ID of the reported post."
+        },
+        "reporterUid": {
+          "type": "string",
+          "description": "The UID of the user who reported the post."
+        },
+        "reason": {
+          "type": "string",
+          "description": "The reason for reporting."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "resolved"],
+          "description": "The status of the report."
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "When the report was created."
+        }
+      },
+      "required": ["postId", "reporterUid", "reason", "status", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile data.",
+      "type": "object",
+      "properties": {
+        "photoURL": {
+          "type": "string",
+          "description": "Base64 encoded profile picture."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "description": "The user's role."
+        },
+        "updatedAt": {
+          "type": "timestamp",
+          "description": "When the profile was last updated."
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "The collection of user profiles."
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/Post" },
+      "description": "The collection of all posts."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "The collection of comments for a post."
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "The collection of reported posts."
+    }
+  }
+}
