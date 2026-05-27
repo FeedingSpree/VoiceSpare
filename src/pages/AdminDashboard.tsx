@@ -154,7 +154,7 @@ export function AdminDashboard() {
     
     // Title
     doc.setFontSize(20);
-    doc.text('TIP Voice Admin Report', 14, 22);
+    doc.text('Freedom Wall Admin Report', 14, 22);
     
     // Date range
     doc.setFontSize(11);
@@ -198,21 +198,54 @@ export function AdminDashboard() {
       headStyles: { fillColor: [250, 204, 21] },
     });
     
-    // Recent Posts Table
-    doc.text('Recent Posts', 14, (doc as any).lastAutoTable.finalY + 15);
+    // Top 10 Most Upvoted
+    const sortedByUpvotes = [...filteredPosts].sort((a, b) => (b.upvotedBy?.length || 0) - (a.upvotedBy?.length || 0));
+    const top10Upvoted = sortedByUpvotes.slice(0, 10);
     
-    const postsBody = filteredPosts.slice(0, 50).map(post => [
+    doc.text('Top 10 Most Upvoted', 14, (doc as any).lastAutoTable.finalY + 15);
+    
+    const upvotedBody = top10Upvoted.map(post => [
       post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'N/A',
       post.category || 'Random',
       post.isAnonymous ? 'Anonymous' : (post.authorName || 'Unknown'),
       (post.content || '').substring(0, 50) + ((post.content || '').length > 50 ? '...' : ''),
-      post.score?.toString() || '0'
+      (post.upvotedBy?.length || 0).toString()
     ]);
     
     autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Date', 'Category', 'Author', 'Content Snippet', 'Score']],
-      body: postsBody,
+      head: [['Date', 'Category', 'Author', 'Content Snippet', 'Upvotes']],
+      body: upvotedBody,
+      theme: 'striped',
+      headStyles: { fillColor: [55, 65, 81] }, // gray-700
+      styles: { fontSize: 9 },
+      columnStyles: { 3: { cellWidth: 80 } }
+    });
+    
+    // Top 10 Controversial
+    const sortedByControversial = [...filteredPosts].sort((a, b) => {
+      const aUp = a.upvotedBy?.length || 0;
+      const aDown = a.downvotedBy?.length || 0;
+      const bUp = b.upvotedBy?.length || 0;
+      const bDown = b.downvotedBy?.length || 0;
+      return Math.min(bUp, bDown) - Math.min(aUp, aDown);
+    });
+    const top10Controversial = sortedByControversial.slice(0, 10);
+
+    doc.text('Top 10 Controversial', 14, (doc as any).lastAutoTable.finalY + 15);
+    
+    const controversialBody = top10Controversial.map(post => [
+      post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'N/A',
+      post.category || 'Random',
+      post.isAnonymous ? 'Anonymous' : (post.authorName || 'Unknown'),
+      (post.content || '').substring(0, 50) + ((post.content || '').length > 50 ? '...' : ''),
+      `${post.upvotedBy?.length || 0} Up / ${post.downvotedBy?.length || 0} Down`
+    ]);
+    
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Date', 'Category', 'Author', 'Content Snippet', 'Votes']],
+      body: controversialBody,
       theme: 'striped',
       headStyles: { fillColor: [55, 65, 81] }, // gray-700
       styles: { fontSize: 9 },
@@ -274,7 +307,7 @@ export function AdminDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Analytics and reports for TIP Voice</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Analytics and reports for Freedom Wall</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
