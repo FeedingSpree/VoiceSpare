@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, updateDoc, arrayUnion, arrayRemove, increment, serverTimestamp } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2, Ghost, User as UserIcon, MessageSquare, ArrowBigUp, ArrowBigDown, Edit2, X, Check, Image as ImageIcon, Share2, Flag } from 'lucide-react';
+import { Trash2, Ghost, User as UserIcon, MessageSquare, ArrowBigUp, ArrowBigDown, CreditCard as Edit2, X, Check, Image as ImageIcon, Share2, Flag } from 'lucide-react';
 import { motion } from 'motion/react';
 import { CommentSection } from './CommentSection';
 import { Link, useNavigate } from 'react-router-dom';
@@ -229,216 +229,162 @@ export function PostItem({ post, user, handleDelete, confirmDelete, cancelDelete
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       onClick={handleCardClick}
-      className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden flex transition-colors ${!isThreadView ? 'cursor-pointer hover:border-yellow-400 dark:hover:border-yellow-500' : ''}`}
+      className={`bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 overflow-hidden flex transition-colors ${!isThreadView ? 'cursor-pointer hover:border-gray-400 dark:hover:border-gray-500' : ''}`}
     >
-      {/* Voting Sidebar */}
-      <div className="bg-gray-50 dark:bg-gray-900/50 w-12 sm:w-16 flex flex-col items-center py-4 border-r border-gray-100 dark:border-gray-700 shrink-0 interactive-area transition-colors">
-        <button 
+      {/* Voting Sidebar — Reddit style: narrow, gray bg */}
+      <div className="bg-gray-50 dark:bg-gray-900/60 w-10 flex flex-col items-center pt-2 pb-2 border-r border-gray-100 dark:border-gray-700/60 shrink-0 interactive-area gap-0.5">
+        <button
           onClick={(e) => handleVote(e, 'up')}
-          className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition ${isUpvoted ? 'text-orange-500' : 'text-gray-400 dark:text-gray-500 hover:text-orange-500 dark:hover:text-orange-400'}`}
+          className={`p-0.5 rounded transition-colors ${isUpvoted ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500 hover:text-yellow-500 dark:hover:text-yellow-400'}`}
         >
-          <ArrowBigUp className={`w-6 h-6 sm:w-7 sm:h-7 ${isUpvoted ? 'fill-current' : ''}`} />
+          <ArrowBigUp className={`w-5 h-5 ${isUpvoted ? 'fill-current' : ''}`} />
         </button>
-        <span className={`text-sm font-bold my-1 ${isUpvoted ? 'text-yellow-500' : isDownvoted ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}>
+        <span className={`text-xs font-bold leading-none ${isUpvoted ? 'text-yellow-500' : isDownvoted ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
           {score}
         </span>
-        <button 
+        <button
           onClick={(e) => handleVote(e, 'down')}
-          className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition ${isDownvoted ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100'}`}
+          className={`p-0.5 rounded transition-colors ${isDownvoted ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400'}`}
         >
-          <ArrowBigDown className={`w-6 h-6 sm:w-7 sm:h-7 ${isDownvoted ? 'fill-current' : ''}`} />
+          <ArrowBigDown className={`w-5 h-5 ${isDownvoted ? 'fill-current' : ''}`} />
         </button>
       </div>
 
       {/* Post Content */}
-      <div className="p-4 sm:p-6 flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 truncate">
-            {isAnonymous ? (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center shrink-0">
-                <Ghost className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            ) : post.authorPhoto ? (
-              <img src={post.authorPhoto} alt={post.authorName} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shrink-0" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
-                <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400" />
-              </div>
-            )}
-            
-            <div className="truncate">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center truncate">
-                {isAnonymous ? 'Anonymous' : post.authorName}
-                {isOwner && isAnonymous && (
-                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 shrink-0">
-                    You
-                  </span>
-                )}
-              </h3>
-              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 truncate space-x-2">
-                <span>{post.createdAt?.toDate ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : 'Just now'}</span>
-                {post.editedAt && <span>(edited)</span>}
-                {post.category && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                    {post.category}
-                  </span>
-                )}
-              </div>
+      <div className="p-2 flex-1 min-w-0">
+        {/* Meta line */}
+        <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+          {isAnonymous ? (
+            <div className="w-5 h-5 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center shrink-0">
+              <Ghost className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
             </div>
-          </div>
-          
+          ) : post.authorPhoto ? (
+            <img src={post.authorPhoto} alt={post.authorName} className="w-5 h-5 rounded-full shrink-0" referrerPolicy="no-referrer" />
+          ) : (
+            <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0">
+              <UserIcon className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+            </div>
+          )}
+          <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
+            {isAnonymous ? 'Anonymous' : post.authorName}
+          </span>
+          {isOwner && isAnonymous && (
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300">
+              You
+            </span>
+          )}
+          {post.category && (
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/50">
+              {post.category}
+            </span>
+          )}
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            {post.createdAt?.toDate ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true }) : 'Just now'}
+          </span>
+          {post.editedAt && <span className="text-xs text-gray-400 dark:text-gray-500">(edited)</span>}
+
+          {/* Owner actions — top right */}
           {isOwner && !isEditing && (
-            <div className="relative shrink-0 ml-2 interactive-area flex items-center">
+            <div className="ml-auto interactive-area flex items-center gap-1">
               {deletingId === post.id ? (
-                <div className="flex items-center space-x-2 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-100 dark:border-red-900/50">
-                  <span className="text-xs text-red-600 dark:text-red-400 font-medium hidden sm:inline">Delete?</span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); confirmDelete(post.id); }}
-                    className="text-xs bg-red-600 dark:bg-red-700 text-white px-2 py-1 rounded hover:bg-red-700 dark:hover:bg-red-600 transition"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
-                    className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                  >
-                    No
-                  </button>
+                <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded border border-red-100 dark:border-red-900/50">
+                  <span className="text-xs text-red-600 dark:text-red-400 font-medium">Delete?</span>
+                  <button onClick={(e) => { e.stopPropagation(); confirmDelete(post.id); }} className="text-xs bg-red-600 text-white px-1.5 py-0.5 rounded hover:bg-red-700 transition">Yes</button>
+                  <button onClick={(e) => { e.stopPropagation(); cancelDelete(); }} className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-1.5 py-0.5 rounded hover:bg-gray-300 transition">No</button>
                 </div>
               ) : (
                 <>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-                    className="text-gray-400 dark:text-gray-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition p-1.5 rounded-full hover:bg-yellow-50 dark:hover:bg-yellow-900/50 mr-1"
-                    title="Edit post"
-                  >
-                    <Edit2 className="w-4 h-4" />
+                  <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1 rounded text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-colors" title="Edit post">
+                    <Edit2 className="w-3.5 h-3.5" />
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDelete(post.id); }}
-                    className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50"
-                    title="Delete post"
-                  >
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(post.id); }} className="p-1 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete post">
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </>
               )}
             </div>
           )}
         </div>
-        
+
+        {/* Edit form or post body */}
         {isEditing ? (
-          <div className="interactive-area mb-4">
+          <div className="interactive-area mb-2">
             <select
               value={editCategory}
               onChange={(e) => setEditCategory(e.target.value)}
-              className="block w-48 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 sm:text-sm border p-1.5 mb-2 transition-colors"
+              className="block w-44 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-yellow-400 focus:ring-yellow-400 text-xs border p-1 mb-2 transition-colors"
             >
               {CATEGORIES.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
             <textarea
-              rows={3}
-              className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 sm:text-sm resize-none p-3 border mb-2 transition-colors placeholder-gray-500 dark:placeholder-gray-400"
+              rows={4}
+              className="block w-full rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-yellow-400 focus:ring-yellow-400 text-sm resize-none p-2 border mb-2 transition-colors placeholder-gray-500 dark:placeholder-gray-400"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               maxLength={5000}
             />
-            
             {editImage && (
               <div className="mb-2 relative inline-block">
-                <img src={editImage} alt="Upload preview" className="max-h-48 rounded-lg border border-gray-200 dark:border-gray-700" />
-                <button
-                  type="button"
-                  onClick={() => setEditImage(null)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition"
-                >
-                  <X className="w-4 h-4" />
+                <img src={editImage} alt="Upload preview" className="max-h-48 rounded border border-gray-200 dark:border-gray-700" />
+                <button type="button" onClick={() => setEditImage(null)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition">
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             )}
-            
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-gray-500 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition p-2 rounded-full hover:bg-yellow-50 dark:hover:bg-yellow-900/50"
-                  title="Change Image"
-                >
-                  <ImageIcon className="w-5 h-5" />
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="text-gray-500 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition p-1 rounded hover:bg-yellow-50 dark:hover:bg-yellow-900/50" title="Change Image">
+                <ImageIcon className="w-4 h-4" />
+              </button>
+              <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+              <div className="flex gap-2">
+                <button onClick={() => { setIsEditing(false); setEditContent(post.content); setEditCategory(post.category || 'Random'); setEditImage(post.imageUrl || null); }} className="inline-flex items-center px-2.5 py-1 border border-gray-300 dark:border-gray-600 text-xs font-bold rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <X className="w-3 h-3 mr-1" /> Cancel
                 </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="hidden"
-                />
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditContent(post.content);
-                    setEditCategory(post.category || 'Random');
-                    setEditImage(post.imageUrl || null);
-                  }}
-                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition"
-                >
-                  <X className="w-3.5 h-3.5 mr-1" /> Cancel
-                </button>
-                <button
-                  onClick={handleSaveEdit}
-                  disabled={!editContent.trim() || isSubmitting}
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-gray-900 bg-yellow-400 hover:bg-yellow-500 focus:outline-none transition disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Saving...' : <><Check className="w-3.5 h-3.5 mr-1" /> Save</>}
+                <button onClick={handleSaveEdit} disabled={!editContent.trim() || isSubmitting} className="inline-flex items-center px-2.5 py-1 text-xs font-bold rounded-full text-gray-900 bg-yellow-400 hover:bg-yellow-500 transition disabled:opacity-50">
+                  {isSubmitting ? 'Saving...' : <><Check className="w-3 h-3 mr-1" /> Save</>}
                 </button>
               </div>
             </div>
           </div>
         ) : (
           <>
-            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words mb-4">{post.content}</p>
+            <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words mb-2 leading-relaxed">{post.content}</p>
             {post.imageUrl && (
-              <div className="mb-4">
-                <img src={post.imageUrl} alt="Post attachment" className="max-h-96 rounded-lg border border-gray-200 dark:border-gray-700 object-contain" />
+              <div className="mb-2">
+                <img src={post.imageUrl} alt="Post attachment" className="max-h-96 rounded border border-gray-200 dark:border-gray-700 object-contain" />
               </div>
             )}
           </>
         )}
-        
-        <div className="flex items-center space-x-4 text-gray-500 dark:text-gray-400 interactive-area">
-          <button 
+
+        {/* Action bar */}
+        <div className="flex items-center gap-0.5 text-gray-500 dark:text-gray-400 interactive-area flex-wrap">
+          <button
             onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }}
-            className="flex items-center space-x-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition"
+            className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-3.5 h-3.5" />
             <span>Comments</span>
           </button>
-          
           <button
             onClick={handleShare}
-            className="flex items-center space-x-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition"
-            title="Share Post"
+            className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Share</span>
           </button>
-          
           {!isOwner && (
             <button
               onClick={handleReport}
-              className="flex items-center space-x-1.5 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 px-2 py-1 rounded transition ml-auto"
-              title="Report Post"
+              className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             >
-              <Flag className="w-4 h-4" />
+              <Flag className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Report</span>
             </button>
           )}
@@ -454,7 +400,7 @@ export function PostItem({ post, user, handleDelete, confirmDelete, cancelDelete
       {/* Report Modal */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full overflow-hidden"
@@ -472,20 +418,17 @@ export function PostItem({ post, user, handleDelete, confirmDelete, cancelDelete
                 rows={4}
               />
             </div>
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end space-x-3">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3">
               <button
-                onClick={() => {
-                  setShowReportModal(false);
-                  setReportReason('');
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                className="px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={submitReport}
                 disabled={!reportReason.trim() || isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-full transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Report'}
               </button>

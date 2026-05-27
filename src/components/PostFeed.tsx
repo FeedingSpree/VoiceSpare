@@ -138,84 +138,88 @@ export function PostFeed() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Sort Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1 sm:space-x-2 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-max transition-colors overflow-x-auto">
-            <button
-              onClick={() => setSortBy('trending')}
-              className={`flex items-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                sortBy === 'trending' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <TrendingUp className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Trending</span>
-            </button>
-            <button
-              onClick={() => setSortBy('new')}
-              className={`flex items-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                sortBy === 'new' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Clock className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">New</span>
-            </button>
-            <button
-              onClick={() => setSortBy('top')}
-              className={`flex items-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                sortBy === 'top' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Star className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Top</span>
-            </button>
-            <button
-              onClick={() => setSortBy('controversial')}
-              className={`flex items-center px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                sortBy === 'controversial' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Flame className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Controversial</span>
-            </button>
-          </div>
+    <div className="space-y-2">
+      {/* Sort Controls — Reddit pill style */}
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 px-3 py-1.5 flex items-center gap-1 flex-wrap">
+        <button
+          onClick={() => setSortBy('trending')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${
+            sortBy === 'trending'
+              ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300'
+              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200'
+          }`}
+        >
+          <TrendingUp className="w-4 h-4" />
+          <span className="hidden sm:inline">Hot</span>
+        </button>
+        <button
+          onClick={() => setSortBy('new')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${
+            sortBy === 'new'
+              ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300'
+              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200'
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span className="hidden sm:inline">New</span>
+        </button>
+        <button
+          onClick={() => setSortBy('top')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${
+            sortBy === 'top'
+              ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300'
+              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200'
+          }`}
+        >
+          <Star className="w-4 h-4" />
+          <span className="hidden sm:inline">Top</span>
+        </button>
+        <button
+          onClick={() => setSortBy('controversial')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${
+            sortBy === 'controversial'
+              ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300'
+              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200'
+          }`}
+        >
+          <Flame className="w-4 h-4" />
+          <span className="hidden sm:inline">Rising</span>
+        </button>
 
-          {(sortBy === 'trending' || sortBy === 'top' || sortBy === 'controversial') && (
-            <select
-              value={timeframe}
-              onChange={(e) => setTimeframe(e.target.value as any)}
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block p-2 shadow-sm transition-colors cursor-pointer"
-            >
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-              <option value="all">All Time</option>
-            </select>
-          )}
-        </div>
-        
+        {(sortBy === 'trending' || sortBy === 'top' || sortBy === 'controversial') && (
+          <select
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value as any)}
+            className="ml-auto bg-transparent border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-xs rounded-full focus:ring-yellow-400 focus:border-yellow-400 px-2 py-1 cursor-pointer"
+          >
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+            <option value="all">All Time</option>
+          </select>
+        )}
+
         {searchQuery && (
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            Found {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} for "{searchQuery}"
-          </div>
+          <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+            {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
+          </span>
         )}
       </div>
 
       {filteredPosts.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
           {searchQuery ? (
             <>
-              <SearchX className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No results found</h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">We couldn't find anything matching "{searchQuery}".</p>
+              <SearchX className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" />
+              <h3 className="mt-2 text-sm font-bold text-gray-900 dark:text-gray-100">No results found</h3>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Nothing matching &ldquo;{searchQuery}&rdquo;.</p>
             </>
           ) : (
             <>
-              <ShieldAlert className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No posts yet</h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Be the first to share your thoughts on the TIP Voice.</p>
+              <ShieldAlert className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" />
+              <h3 className="mt-2 text-sm font-bold text-gray-900 dark:text-gray-100">No posts yet</h3>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Be the first to share your thoughts.</p>
             </>
           )}
         </div>
