@@ -32,7 +32,6 @@ export function Navbar() {
         <div className="flex items-center h-12 gap-3">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src="public/logo.png" alt="TIP Voice Logo" className="h-7 w-auto object-contain" referrerPolicy="no-referrer" />
             <span className="text-base font-bold text-yellow-500 dark:text-yellow-400 hidden sm:block">TIP Voice</span>
           </Link>
 
