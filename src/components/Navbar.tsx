@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { LogOut, User as UserIcon, ShieldAlert, Sun, Moon, Search, ChevronDown } from 'lucide-react';
+import { LogIn, LogOut, User as UserIcon, ShieldAlert, Sun, Moon, Search } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 export function Navbar() {
-  const { user, userProfile, login, logout } = useAuth();
+  const { user, userProfile, isAdmin, login, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -27,92 +27,79 @@ export function Navbar() {
   const displayPhotoURL = userProfile?.photoURL || user?.photoURL;
 
   return (
-    <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center h-12 gap-3">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img src="public/logo.png" alt="TIP Voice Logo" className="h-7 w-auto object-contain" referrerPolicy="no-referrer" />
-            <span className="text-base font-bold text-yellow-500 dark:text-yellow-400 hidden sm:block">TIP Voice</span>
-          </Link>
+    <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-200">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center shrink-0">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src="/logo.png" alt="Freedom Wall Logo" className="h-8 w-auto object-contain" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden') }} />
+              <h1 className="text-xl sm:text-2xl font-bold text-yellow-500 dark:text-yellow-400 tracking-tight hidden sm:block">Freedom Wall</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-yellow-500 dark:text-yellow-400 tracking-tight sm:hidden">FW</h1>
+            </Link>
+          </div>
 
-          {/* Search */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-xl">
-            <div className="relative">
+          <div className="flex-1 flex items-center justify-center px-2 sm:px-6 max-w-md mx-auto">
+            <form onSubmit={handleSearch} className="w-full relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 type="text"
-                placeholder="Search TIP Voice"
+                placeholder="Search posts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full pl-9 pr-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 text-sm transition-colors"
+                className="block w-full pl-9 pr-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-800 focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 text-sm transition-colors"
               />
-            </div>
-          </form>
+            </form>
+          </div>
 
-          {/* Right section */}
-          <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
             <button
               onClick={toggleTheme}
-              className="p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
               aria-label="Toggle theme"
             >
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
 
-            {user?.email === 'qweshesh01@gmail.com' && (
+            {isAdmin && (
               <Link
                 to="/admin"
-                className="hidden sm:inline-flex items-center px-2.5 py-1 text-xs font-bold rounded-full text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900 border border-yellow-200 dark:border-yellow-800 transition-colors"
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-900 transition"
               >
-                <ShieldAlert className="w-3.5 h-3.5 mr-1" />
-                Admin
+                <ShieldAlert className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Admin Dashboard</span>
               </Link>
             )}
-
+            
             {user ? (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-1.5 px-2 py-1 border border-gray-200 dark:border-gray-600 rounded-full hover:border-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
+              <>
+                <Link to="/profile" className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors">
                   {displayPhotoURL ? (
-                    <img src={displayPhotoURL} alt="Profile" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
+                    <img src={displayPhotoURL} alt="Profile" className="w-8 h-8 rounded-full border border-transparent hover:border-yellow-400 transition-colors" referrerPolicy="no-referrer" />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                      <UserIcon className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border border-transparent hover:border-yellow-400 transition-colors">
+                      <UserIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </div>
                   )}
-                  <span className="hidden sm:block text-xs font-bold text-gray-800 dark:text-gray-200 max-w-20 truncate">
-                    {user.displayName}
-                  </span>
-                  <ChevronDown className="w-3 h-3 text-gray-400 hidden sm:block" />
+                  <span className="hidden sm:inline-block font-medium">{user.displayName}</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="hidden sm:flex items-center px-3 py-1 border border-gray-200 dark:border-gray-600 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 transition-colors"
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none transition"
                 >
-                  <LogOut className="w-3.5 h-3.5 mr-1" />
-                  Log Out
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
                 </button>
-              </div>
+              </>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={login}
-                  className="px-4 py-1.5 border-2 border-yellow-400 text-yellow-600 dark:text-yellow-400 text-xs font-bold rounded-full hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
-                >
-                  Log In
-                </button>
-                <button
-                  onClick={login}
-                  className="hidden sm:flex items-center px-4 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-bold rounded-full transition-colors"
-                >
-                  Sign Up
-                </button>
-              </div>
+              <button
+                onClick={login}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign in with Google
+              </button>
             )}
           </div>
         </div>

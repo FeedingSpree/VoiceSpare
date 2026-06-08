@@ -13,10 +13,13 @@ interface AuthContextType {
   user: User | null;
   userProfile: UserProfileData | null;
   isAuthReady: boolean;
+  isAdmin: boolean;
   login: () => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
 }
+
+const ADMIN_EMAILS = ['qweshesh01@gmail.com', 'osaqc@tip.edu.ph', 'fredericmariano101@gmail.com'];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -65,13 +68,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
-      console.error("Error signing in with Google", error);
       if (error.code === 'auth/popup-closed-by-user') {
-        // User closed it, ignore
-      } else if (error.code === 'auth/unauthorized-domain') {
-        alert('Sign-in failed: This domain is not authorized. If running locally, make sure to use http://localhost (not 127.0.0.1). If deployed, add this domain to Firebase Auth Authorized Domains.');
+        // User closed it, ignore gently
+        console.log('Login popup closed by user');
       } else {
-        alert(`Sign-in failed: ${error.message || 'Unknown error'}. Please ensure third-party cookies are not blocked by your browser.`);
+        console.error("Error signing in with Google", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          alert('Sign-in failed: This domain is not authorized. If running locally, make sure to use http://localhost (not 127.0.0.1). If deployed, add this domain to Firebase Auth Authorized Domains.');
+        } else {
+          alert(`Sign-in failed: ${error.message || 'Unknown error'}. Please ensure third-party cookies are not blocked by your browser.`);
+        }
       }
     }
   };
@@ -93,8 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isAdmin = Boolean(user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) || userProfile?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, isAuthReady, login, loginWithEmail, logout }}>
+    <AuthContext.Provider value={{ user, userProfile, isAuthReady, isAdmin, login, loginWithEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );

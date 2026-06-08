@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Lock, Mail } from 'lucide-react';
 
 export function AdminLogin() {
-  const { loginWithEmail, user } = useAuth();
+  const { loginWithEmail, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,10 +13,10 @@ export function AdminLogin() {
 
   // If already logged in as admin, redirect
   useEffect(() => {
-    if (user?.email === 'qweshesh01@gmail.com') {
+    if (isAdmin) {
       navigate('/admin');
     }
-  }, [user, navigate]);
+  }, [isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
